@@ -12,7 +12,7 @@ class MaxFileSizeValidator:
 
     def __call__(self, value):
         if value.size > self.max_size:
-            raise ValidationError(f"El archivo no debe pesar más de {self.max_size} bytes.")
+            raise ValueError(f"El archivo no debe pesar más de {self.max_size} bytes.")
         
 class Gestion(models.Model):
     descripcion = models.TextField()
