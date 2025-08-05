@@ -88,6 +88,8 @@ REST_FRAMEWORK = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 
+AUTH_USER_MODEL = 'usuarios.Usuarios'
+
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
