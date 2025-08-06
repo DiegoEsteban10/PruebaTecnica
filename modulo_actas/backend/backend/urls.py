@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/gestiones/', include('apps.gestiones.urls')),
     path('api/compromisos/', include('apps.compromisos.urls')),
     path('api/usuarios/', include('apps.usuarios.urls')),
+    path('api-auth/', include('rest_framework.urls'))
 ]

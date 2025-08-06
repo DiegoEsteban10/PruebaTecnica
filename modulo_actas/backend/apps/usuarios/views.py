@@ -1,9 +1,56 @@
 from rest_framework import viewsets
 from .models import Usuario
 from .serializers import UsuarioSerializer
+from rest_framework import permissions
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import authenticate
+from .serializers import LoginSerializer
+from rest_framework.permissions import AllowAny
 
 # Create your views here.
+
+from rest_framework import permissions
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(
+                request,
+                email=serializer.validated_data['correo'],
+                password=serializer.validated_data['password']
+            )
+            if not user:
+            # Depuración adicional
+                print(f"Usuario no autenticado: {serializer.validated_data['correo']}")
+                return Response(
+                {'error': 'Credenciales inválidas'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        from django.contrib.auth import login
+        login(request, user)
+        return Response({
+            'status': 'Login exitoso',
+            'user_id': user.id,
+            'correo': user.correo,
+            'rol': user.rol
+        })
+
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+    
+    def get_permissions(self):
+        if self.action == 'create':
+            return [permissions.AllowAny()]  
+        return [permissions.IsAuthenticated()]
