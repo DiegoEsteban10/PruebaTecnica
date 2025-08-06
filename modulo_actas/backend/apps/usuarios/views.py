@@ -8,6 +8,7 @@ from rest_framework import status
 from django.contrib.auth import authenticate
 from .serializers import LoginSerializer
 from rest_framework.permissions import AllowAny
+from rest_framework.decorators import action
 
 # Create your views here.
 
@@ -45,7 +46,16 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
+    @action(detail=False, methods=['get'])
+    def me (self, request):
+        return Response({
+            'id': request.user.id,
+            'correo': request.user.correo,
+            'rol': request.user.rol
+        })
+        
     def get_permissions(self):
+        
         if self.action == 'create':
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
