@@ -7,6 +7,7 @@ from .serializers import ActaSerializer
 
 class ActaViewSet(viewsets.ModelViewSet):
     serializer_class = ActaSerializer
+    queryset = Acta.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
