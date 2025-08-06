@@ -1,0 +1,22 @@
+[
+    {
+        "model": "usuarios.usuario",
+        "pk": 1,
+        "fields": {
+        "correo": "base@ejemplo.com",
+        "username": "base",
+        "password": "pbkdf2_sha256$1000000$3DooEkVpFxfMFzWsPgp1LE$X+vOoMNtN/qJxtowOcNHwKBNFMeUMiZzXzoRzkAY4DA=",  
+        "rol": "BASE"
+        }
+    },
+    {
+        "model": "actas.acta",
+        "pk": 1,
+        "fields": {
+        "titulo": "Acta de Reunión Inicial",
+        "estado": "PENDIENTE",
+        "fecha": "2023-11-15",
+        "creador": 1 
+        }
+    }
+]
