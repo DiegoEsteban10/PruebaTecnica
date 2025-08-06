@@ -1,23 +1,12 @@
 from django.db import models
-from django.core.validators import FileExtensionValidator, MaxValueValidator
-from django.utils.deconstruct import deconstructible
-
+from apps.actas.models import Acta
+from apps.usuarios.models import Usuario
+from django.core.validators import FileExtensionValidator , MaxFileSizeValidator
 # Create your models here.
-
-@deconstructible
-
-class MaxFileSizeValidator: 
-    def __init__(self, max_size):
-        self.max_size = max_size
-
-    def __call__(self, value):
-        if value.size > self.max_size:
-            raise ValueError(f"El archivo no debe pesar más de {self.max_size} bytes.")
-        
 class Gestion(models.Model):
-    descripcion = models.TextField()
-    archivo_adjunto = models.FileField(upload_to='gestiones/', validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg']), MaxFileSizeValidator(5 * 1024 * 1024)])
-    fecha = models.DateField(auto_now_add=True)
+    descripcion = models.TextField('Descripción')
+    archivo_adjunto = models.FileField('archivo adjunto', upload_to='gestiones/', validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg']), MaxFileSizeValidator(5*1024*1024)])
+    fecha = models.DateField('fecha de creacion',auto_now_add=True)
     acta = models.ForeignKey('actas.Acta', on_delete=models.CASCADE, related_name='gestiones')
     creador = models.ForeignKey('usuarios.Usuarios', on_delete=models.CASCADE)
     
