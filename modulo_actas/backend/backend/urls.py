@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from apps.actas.views import ActaFileview
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,6 +24,7 @@ urlpatterns = [
     path('api/gestiones/', include('apps.gestiones.urls')),
     path('api/compromisos/', include('apps.compromisos.urls')),
     path('api/usuarios/', include('apps.usuarios.urls')),
-    path('api-auth/', include('rest_framework.urls'))
+    path('api-auth/', include('rest_framework.urls')),
+    path('actas/<int:pk>/archivo/', ActaFileview.as_view())
     # urls del backend
 ]

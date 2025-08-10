@@ -7,6 +7,8 @@ from .serializers import ActaSerializer
 from rest_framework.decorators import action
 from apps.actas.serializers import ActaSerializer
 from apps.compromisos.serializers import CompromisoSerializer
+from rest_framework.views import APIView
+from django.http import Http404, FileResponse
 # Create your views here.
 
 
@@ -29,12 +31,23 @@ class ActaViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(creador=self.request.user)
         
+class ActaFileview(APIView):
+    permissions_classes = [IsAuthenticated]
+    
+    def get(self, request, pk):
+        try:
+            Acta = Acta.objects.get(pk=pk)
+            file_path = Acta.archivo_pdf.path
+            return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+        except (Acta.DoesNotExist, FileNotFoundError):
+            raise Http404
+        
 class CompromisoViewSet(viewsets.ModelViewSet):
     serializer_class = CompromisoSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        return Compromisos.objects.filter(acta__creador=self.request.user)
+        return Compromiso.objects.filter(acta__creador=self.request.user)
     
     def perform_create(self, serializer):
         acta = serializer.validated_data['acta']
