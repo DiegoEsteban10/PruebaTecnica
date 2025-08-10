@@ -13,7 +13,7 @@ from rest_framework.decorators import action
 # Create your views here.
 
 from rest_framework import permissions
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token 
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -33,7 +33,7 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-            token, _ = TokenAuthentication.objects.get_or_create(user=user)
+            token, _ = Token.objects.get_or_create(user=user)
 
             return Response({
                 'status': 'Login exitoso',
