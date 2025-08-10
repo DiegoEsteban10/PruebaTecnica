@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/compromisos/', include('apps.compromisos.urls')),
     path('api/usuarios/', include('apps.usuarios.urls')),
     path('api-auth/', include('rest_framework.urls'))
+    # urls del backend
 ]
