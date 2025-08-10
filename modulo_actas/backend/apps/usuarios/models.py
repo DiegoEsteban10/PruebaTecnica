@@ -4,8 +4,21 @@ from django.contrib.auth.models import UserManager
 
 # Create your models here.
 class CustomUserManager(UserManager):
-    def get_by_natural_key(self, username):
-        return self.get(**{self.model.USERNAME_FIELD: username})
+    def create_user(self, correo, password=None, **extra_fields):
+        if not correo:
+            raise ValueError('El correo es obligatorio')
+        extra_fields.setdefault('username', correo)
+        correo = self.normalize_email(correo)
+        user = self.model(correo=correo, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_superuser(self, correo, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('rol', 'ADMIN')
+        return self.create_user(correo, password, **extra_fields)
 
 class Usuario(AbstractUser):
     ROLES = [
@@ -15,12 +28,10 @@ class Usuario(AbstractUser):
     correo = models.EmailField('correo',unique=True)
     rol = models.CharField(max_length=20, choices=ROLES, default='BASE')
     
-    password = models.CharField('contraseña', max_length=128)
-
     USERNAME_FIELD = 'correo'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
 
-    objects = models.Manager()
+    objects = CustomUserManager()
 
-def __str__(self):
-    return self.correo
+    def __str__(self):
+        return self.correo

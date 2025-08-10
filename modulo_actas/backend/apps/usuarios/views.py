@@ -13,6 +13,7 @@ from rest_framework.decorators import action
 # Create your views here.
 
 from rest_framework import permissions
+from rest_framework.authentication import TokenAuthentication
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -32,14 +33,17 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        from django.contrib.auth import login
-        login(request, user)
-        return Response({
-            'status': 'Login exitoso',
-            'user_id': user.id,
-            'correo': user.correo,
-            'rol': user.rol
-        })
+            token, _ = TokenAuthentication.objects.get_or_create(user=user)
+
+            return Response({
+                'status': 'Login exitoso',
+                'user_id': user.id,
+                'correo': user.correo,
+                'rol': user.rol,
+                'token': token.key
+            })
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):

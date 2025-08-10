@@ -6,10 +6,9 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(style={'input_type': 'password'})
     
 class UsuarioSerializer(serializers.ModelSerializer):
-    # Campo "virtual" para la API (opcional, si quieres mostrar "contraseña" en el frontend)
     contraseña = serializers.CharField(
-        write_only=True,  # No se muestra en las respuestas
-        style={'input_type': 'password'}  # Para que el frontend lo muestre como campo de contraseña
+        write_only=True,  
+        style={'input_type': 'password'}  
     )
 
     class Meta:
@@ -20,11 +19,10 @@ class UsuarioSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        # Extrae la contraseña del campo "virtual" y asígnala al campo real "password"
         password = validated_data.pop('contraseña', None)
         user = super().create(validated_data)
         if password:
-            user.set_password(password)  # Hashea la contraseña
+            user.set_password(password)
             user.save()
         return user
     
