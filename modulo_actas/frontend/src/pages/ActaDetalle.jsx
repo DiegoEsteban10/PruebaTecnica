@@ -16,12 +16,31 @@ export default function ActaDetalle() {
         return <div>Loading...</div>;
     }
 
-    const handleVerPDF = () => {
+    const handleVerPDF = async() => {
         if (token) {
-        window.open(`http://localhost:8000/actas/${acta.id}/archivo/`, '_blank');
-    } else {
         alert("Tienes que iniciar sesión para ver el PDF");
+        return;
     }
+
+    try {
+        
+        const response = await fetch(`http://localhost:8000/actas/${acta.id}/archivo/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al obtener el PDF');
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    } catch (error) {
+        console.error(error);
+        alert('Error al abrir el PDF');
     }
 
     return (
@@ -42,4 +61,5 @@ export default function ActaDetalle() {
             )}
         </div>
     );
+}
 }
