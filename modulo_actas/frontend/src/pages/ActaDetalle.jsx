@@ -17,7 +17,7 @@ export default function ActaDetalle() {
     }
 
     const handleVerPDF = async() => {
-        if (token) {
+        if (!token) {
         alert("Tienes que iniciar sesión para ver el PDF");
         return;
     }
@@ -42,6 +42,7 @@ export default function ActaDetalle() {
         console.error(error);
         alert('Error al abrir el PDF');
     }
+    };
 
     return (
         <div>
@@ -61,5 +62,4 @@ export default function ActaDetalle() {
             )}
         </div>
     );
-}
 }
