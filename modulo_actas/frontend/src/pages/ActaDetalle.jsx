@@ -24,7 +24,7 @@ export default function ActaDetalle() {
 
     try {
         
-        const response = await fetch(`http://localhost:8000/actas/${acta.id}/archivo/`, {
+        const response = await fetch(`http://localhost:8000/api/actas/${acta.id}/pdf/`, {
             method: 'GET',
             headers: {
                 'Authorization': `Token ${token}`,
