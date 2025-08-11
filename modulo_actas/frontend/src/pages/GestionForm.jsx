@@ -31,7 +31,7 @@ const GestionForm = () => {
         setError('');
         return true;
     };
-}
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -83,6 +83,7 @@ const GestionForm = () => {
         </form>
     </div>
     );
+};
 
 export default GestionForm;
             
