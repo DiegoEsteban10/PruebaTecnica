@@ -3,12 +3,26 @@ import api from "../api/api";
 
 export default function useAuth() {
     const [user, setUser] = useState(() => {
+        try {
         const savedUser = localStorage.getItem('user');
-        return savedUser ? JSON.parse(savedUser) : null;
+        if (!savedUser || savedUser === 'undefined'){
+            localStorage.removeItem('user');
+            return null;
+        }
+        return JSON.parse(savedUser);
+        } catch (error) {
+            localStorage.removeItem('user');
+        return null;
+        }
     });
-
+    
     const [token, setToken] = useState(() => {
-        return localStorage.getItem('token') || null;
+        const savedToken = localStorage.getItem('token');
+        if (!savedToken || savedToken === 'undefined'){
+            localStorage.removeItem('token');
+            return null;
+        }
+        return savedToken;
     });
 
     // login con localStorage
@@ -32,6 +46,7 @@ export default function useAuth() {
 
     const logout = () => {
         localStorage.removeItem('token');
+        setToken(null);
         localStorage.removeItem('user');
         setUser(null);
     };

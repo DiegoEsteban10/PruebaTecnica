@@ -9,8 +9,19 @@ export default function Actas() {
     const [filtroFecha, setFiltroFecha] = useState('');
 
     useEffect(() => {
-        api.get('/api/actas/').then((response) => setActas(response.data));
-    }, []);
+    api.get('/actas/').then((response) => {
+        console.log("Datos recibidos:", response.data); // 👈 Para ver estructura real
+        if (Array.isArray(response.data)) {
+            setActas(response.data);
+        } else if (Array.isArray(response.data.results)) {
+            setActas(response.data.results);
+        } else if (Array.isArray(response.data.actas)) {
+            setActas(response.data.actas);
+        } else {
+            setActas([]); // Evita error si no hay datos
+        }
+    });
+}, []);
 
     const actasFiltradas = actas.filter((acta) => {
         return (
