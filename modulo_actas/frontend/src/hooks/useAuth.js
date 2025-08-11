@@ -14,7 +14,7 @@ export default function useAuth() {
     // login con localStorage
     const login = async (correo, password) => {
         try {
-            const response = await api.post('/login/', { correo, password });
+            const response = await api.post('/usuarios/login/', { correo, password });
             const { user, token } = response.data;
 
             localStorage.setItem('token', token);
