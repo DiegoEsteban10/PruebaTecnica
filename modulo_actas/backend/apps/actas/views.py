@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 from apps.actas.models import Acta
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.renderers import JSONRenderer
 from .serializers import ActaSerializer
 from rest_framework.decorators import action
 from apps.actas.serializers import ActaSerializer
@@ -14,6 +14,7 @@ class ActaViewSet(viewsets.ModelViewSet):
     serializer_class = ActaSerializer
     queryset = Acta.objects.all()
     permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer]
 
     def get_queryset(self):
         usuario = self.request.user

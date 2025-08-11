@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import CompromisoViewSet
 
 router = DefaultRouter()
-router.register(r'compromisos', CompromisoViewSet, basename='compromisos')
+router.register(r'', CompromisoViewSet, basename='compromisos')
 
 urlpatterns = [
     path('', include(router.urls)),
