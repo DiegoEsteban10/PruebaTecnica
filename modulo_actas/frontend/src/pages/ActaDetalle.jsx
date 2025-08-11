@@ -6,7 +6,7 @@ import useAuth from "../hooks/useAuth";
 export default function ActaDetalle() {
     const { id } = useParams();    
     const [acta, setActa] = useState(null);
-    const { user } = useAuth();
+    const { user, token } = useAuth();
 
     useEffect(() => {
         api.get(`/actas/${id}/`).then((response) => setActa(response.data));
@@ -16,7 +16,7 @@ export default function ActaDetalle() {
         return <div>Loading...</div>;
     }
 
-    const hanleVerPDF = () => {
+    const handleVerPDF = () => {
         if (token) {
         window.open('http://localhost:8000/api/actas/${id}/archivo/', '_blank');
     } else {

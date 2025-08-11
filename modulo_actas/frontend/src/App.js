@@ -3,12 +3,14 @@ import Login from "./auth/login";
 import RutaPrivada from "./auth/rutaPrivada";
 import Actas from "./pages/Actas";
 import ActaDetalle from "./pages/ActaDetalle";
+import GestionForm from "./pages/GestionForm";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+
         <Route
           path="/actas"
           element={
@@ -17,6 +19,7 @@ function App() {
             </RutaPrivada>
           }
         />
+
         <Route
           path="/actas/:id"
           element={
@@ -25,6 +28,16 @@ function App() {
             </RutaPrivada>
           }
         />
+
+        <Route
+          path="/gestiones"
+          element={
+            <RutaPrivada>
+              <GestionForm />
+            </RutaPrivada>
+          }
+        />
+        
       </Routes>
     </BrowserRouter>
   );

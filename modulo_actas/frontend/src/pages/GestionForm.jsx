@@ -75,7 +75,7 @@ const GestionForm = () => {
         <label>Archivo:</label>
         <input
             type="file"
-            onChange={(e) => setArchivo(e.target.files[0])}
+            onChange={(e) => setArchivo_adjunto(e.target.files[0])}
             required
         />
 

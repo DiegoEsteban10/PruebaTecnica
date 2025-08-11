@@ -13,10 +13,12 @@ export default function Actas() {
     }, []);
 
     const actasFiltradas = actas.filter((acta) => {
+        return (
         acta.titulo.toLowerCase().includes(filtroTitulo.toLowerCase()) &&
         (filtroEstado === '' || acta.estado.toLowerCase() === (filtroEstado.toLowerCase()) &&
         (filtroFecha === '' || acta.fecha === filtroFecha)
-    );
+    ));
+    });
 
     return (
         <div>
@@ -67,6 +69,6 @@ export default function Actas() {
             </table>
         </div>
     );
-    })
+    
 }
 
