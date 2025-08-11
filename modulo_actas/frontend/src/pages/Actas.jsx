@@ -9,7 +9,7 @@ export default function Actas() {
     const [filtroFecha, setFiltroFecha] = useState('');
 
     useEffect(() => {
-        api.get('/actas/').then((response) => setActas(response.data));
+        api.get('/api/actas/').then((response) => setActas(response.data));
     }, []);
 
     const actasFiltradas = actas.filter((acta) => {
