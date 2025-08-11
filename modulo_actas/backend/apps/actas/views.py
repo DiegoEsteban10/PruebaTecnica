@@ -25,7 +25,9 @@ class ActaViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def pdf(self,request, pk=None):
         acta =  self.get_object()
-        return FileResponse(open(acta.archivo_pdf.path, 'rb'))
+        response = FileResponse(open(acta.archivo_pdf.path, 'rb'), content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="{acta.titulo}.pdf"'
+        return response
                             
     def perform_create(self, serializer):
         serializer.save(creador=self.request.user)
@@ -35,8 +37,10 @@ class ActaFileview(APIView):
     
     def get(self, request, pk):
         try:
-            Acta = Acta.objects.get(pk=pk)
-            file_path = Acta.archivo_pdf.path
-            return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+            acta = Acta.objects.get(pk=pk)
+            file_path = acta.archivo_pdf.path
+            response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+            response ['Content-Disposition'] = f'inline; filename="{acta.titulo}.pdf"'
+            return response
         except (Acta.DoesNotExist, FileNotFoundError):
             raise Http404
