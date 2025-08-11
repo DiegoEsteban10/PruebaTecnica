@@ -15,7 +15,6 @@ export default function Login() {
             alert("Credenciales inválidas");
         }
     };
-    } 
 
     return(
         <div>
@@ -37,3 +36,4 @@ export default function Login() {
     </form>
     </div>
     );
+}

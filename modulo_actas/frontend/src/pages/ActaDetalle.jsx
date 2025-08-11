@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";    
 import api from "../api/api";
 import { Link, useParams } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import useAuth from "../hooks/useAuth";
 
 export default function ActaDetalle() {
     const { id } = useParams();    
     const [acta, setActa] = useState(null);
-    const { user, token } = useAuth();
+    const { user } = useAuth();
 
     useEffect(() => {
         api.get(`/actas/${id}/`).then((response) => setActa(response.data));

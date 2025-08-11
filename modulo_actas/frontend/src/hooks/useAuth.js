@@ -7,15 +7,24 @@ export default function useAuth() {
         return savedUser ? JSON.parse(savedUser) : null;
     });
 
+    const [token, setToken] = useState(() => {
+        return localStorage.getItem('token') || null;
+    });
+
     // login con localStorage
     const login = async (correo, password) => {
         try {
             const response = await api.post('/login/', { correo, password });
             const { user, token } = response.data;
+
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
+
             setUser(user);
+            setToken(token);
+
             return user;
+
         } catch (error) {
             throw error;
         }
@@ -27,11 +36,5 @@ export default function useAuth() {
         setUser(null);
     };
 
-    return { user, login, logout };
+    return { user, token, login, logout };
 }
-
-export const useAuth = () => {
-    const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user"));
-    return { token, user };
-};
