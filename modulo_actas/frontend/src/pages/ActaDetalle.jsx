@@ -6,6 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 export default function ActaDetalle() {
     const { id } = useParams();    
     const [acta, setActa] = useState(null);
+    const { user, token } = useAuth();
 
     useEffect(() => {
         api.get(`/actas/${id}/`).then((response) => setActa(response.data));
@@ -16,24 +17,29 @@ export default function ActaDetalle() {
     }
 
     const hanleVerPDF = () => {
+        if (token) {
         window.open('http://localhost:8000/api/actas/${id}/archivo/', '_blank');
-    };
+    } else {
+        alert("Tienes que iniciar sesión para ver el PDF");
+    }
+    }
 
     return (
         <div>
             <h2>Detalle de Acta</h2>
-            <p>Título: {acta.titulo}</p>
-            <p>Estado: {acta.estado}</p>
-            <p>Fecha: {acta.fecha}</p>
-            <button onClick={hanleVerPDF}>Ver PDF</button>
+            <p><strong>Título:</strong> {acta.titulo}</p>
+            <p><strong>Estado:</strong> {acta.estado}</p>
+            <p><strong>Fecha:</strong> {acta.fecha}</p>
+
+            {token && (
+                <button onClick={handleVerPDF}>Ver PDF</button>
+            )}
+
+            {(user?.rol === "ADMIN" || user?.id === acta.creador?.id) && (
+                <Link to={`gestiones/nueva/${id}`}>
+                    <button>Agregar Gestión</button> 
+                </Link>
+            )}
         </div>
     );
 }
-
-const { user } = useAuth();
-
-{(user.rol === "ADMIN" || user.id === acta.creador.id) && (
-    <Link to={`/gestiones/nueva/${acta.id}`}>
-        <button>Agregar Gestión</button> 
-    </Link>
-)}
