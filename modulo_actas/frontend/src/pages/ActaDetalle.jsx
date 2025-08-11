@@ -56,7 +56,7 @@ export default function ActaDetalle() {
             )}
 
             {(user?.rol === "ADMIN" || user?.id === acta.creador?.id) && (
-                <Link to={`gestiones/nueva/${id}`}>
+                <Link to={`/actas/${acta.id}/gestiones/nueva`}>
                     <button>Agregar Gestión</button> 
                 </Link>
             )}

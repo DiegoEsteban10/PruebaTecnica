@@ -30,7 +30,7 @@ function App() {
         />
 
         <Route
-          path="/gestiones"
+          path="/actas/:id/gestiones/nueva"
           element={
             <RutaPrivada>
               <GestionForm />
