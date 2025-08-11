@@ -18,7 +18,7 @@ export default function ActaDetalle() {
 
     const handleVerPDF = () => {
         if (token) {
-        window.open('http://localhost:8000/api/actas/${id}/archivo/', '_blank');
+        window.open(`http://localhost:8000/actas/${acta.id}/archivo/`, '_blank');
     } else {
         alert("Tienes que iniciar sesión para ver el PDF");
     }
