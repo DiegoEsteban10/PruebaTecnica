@@ -1,65 +1,134 @@
 import { useEffect, useState } from "react";    
 import api from "../api/api";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
 export default function ActaDetalle() {
-    const { id } = useParams();    
-    const [acta, setActa] = useState(null);
-    const { user, token } = useAuth();
+  const { id } = useParams();
+  const location = useLocation();     
+  const { user, token } = useAuth();
 
-    useEffect(() => {
-        api.get(`/actas/${id}/`).then((response) => setActa(response.data));
-    }, [id]);
+  const [acta, setActa] = useState(null);
+  const [gestiones, setGestiones] = useState([]);
+  const [cargandoGestiones, setCargandoGestiones] = useState(true);
+  const [errorGestiones, setErrorGestiones] = useState("");
 
-    if (!acta) {
-        return <div>Loading...</div>;
-    }
+  useEffect(() => {
+    api.get(`/actas/${id}/`).then((response) => setActa(response.data));
+  }, [id]);
 
-    const handleVerPDF = async() => {
-        if (!token) {
-        alert("Tienes que iniciar sesión para ver el PDF");
-        return;
-    }
+  useEffect(() => {
+    let cancelado = false;
+    setCargandoGestiones(true);
+    setErrorGestiones("");
 
-    try {
-        
-        const response = await fetch(`http://localhost:8000/api/actas/${acta.id}/pdf/`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Token ${token}`,
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error('Error al obtener el PDF');
+    api.get(`/gestiones/`)
+      .then((r) => {
+        const data = r.data;
+        const lista = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+          ? data.results
+          : Array.isArray(data?.gestiones)
+          ? data.gestiones
+          : [];
+        if (!cancelado) {
+          const filtradas = lista.filter((g) => String(g.acta) === String(id));
+          setGestiones(filtradas);
         }
+      })
+      .catch(() => !cancelado && setErrorGestiones("No se pudieron cargar las gestiones"))
+      .finally(() => !cancelado && setCargandoGestiones(false));
 
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-    } catch (error) {
-        console.error(error);
-        alert('Error al abrir el PDF');
-    }
+    return () => {
+      cancelado = true;
     };
+  }, [id, location.key]);
 
-    return (
-        <div>
-            <h2>Detalle de Acta</h2>
-            <p><strong>Título:</strong> {acta.titulo}</p>
-            <p><strong>Estado:</strong> {acta.estado}</p>
-            <p><strong>Fecha:</strong> {acta.fecha}</p>
+  if (!acta) return <div>Cargando...</div>;
 
-            {token && (
-                <button onClick={handleVerPDF}>Ver PDF</button>
-            )}
+  const handleVerPDF = async () => {
+    if (!token) {
+      alert("Tienes que iniciar sesión para ver el PDF");
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:8000/api/actas/${acta.id}/pdf/`, {
+        method: 'GET',
+        headers: { 'Authorization': `Token ${token}` },
+      });
+      if (!response.ok) throw new Error("Error al obtener el PDF");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error(error);
+      alert("Error al abrir el PDF");
+    }
+  };
 
-            {(user?.rol === "ADMIN" || user?.id === acta.creador?.id) && (
-                <Link to={`/actas/${acta.id}/gestiones/nueva`}>
-                    <button>Agregar Gestión</button> 
-                </Link>
-            )}
-        </div>
-    );
+  // 🔧 solo esencial: construir bien la URL del adjunto
+  const buildAdjuntoURL = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    if (path.startsWith('/')) return `http://localhost:8000${path}`;
+    return `http://localhost:8000/media/${path}`;
+  };
+
+  return (
+    <div>
+      <h2>Detalle de Acta</h2>
+      <p><strong>Título:</strong> {acta.titulo}</p>
+      <p><strong>Estado:</strong> {acta.estado}</p>
+      <p><strong>Fecha:</strong> {acta.fecha}</p>
+
+      {token && <button onClick={handleVerPDF}>Ver PDF</button>}
+
+      {(user?.rol === "ADMIN" || user?.id === acta.creador?.id) && (
+        <Link to={`/actas/${acta.id}/gestiones/nueva`}>
+          <button>Agregar Gestión</button>
+        </Link>
+      )}
+
+      <hr style={{ margin: "1rem 0" }} />
+
+      <h3>Gestiones</h3>
+      {cargandoGestiones && <p>Cargando gestiones...</p>}
+      {errorGestiones && <p style={{ color: "red" }}>{errorGestiones}</p>}
+      {!cargandoGestiones && gestiones.length === 0 && <p>No hay gestiones para esta acta.</p>}
+
+      {gestiones.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Descripción</th>
+              <th>Archivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {gestiones.map((g) => (
+              <tr key={g.id}>
+                <td>{g.fecha}</td>
+                <td>{g.descripcion}</td>
+                <td>
+                  {g.archivo_adjunto ? (
+                    <a
+                      href={buildAdjuntoURL(g.archivo_adjunto)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Ver adjunto
+                    </a>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
 }
