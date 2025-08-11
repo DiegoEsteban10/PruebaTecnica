@@ -29,3 +29,9 @@ export default function useAuth() {
 
     return { user, login, logout };
 }
+
+export const useAuth = () => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+    return { token, user };
+};

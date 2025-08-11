@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";    
 import api from "../api/api";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 export default function ActaDetalle() {
     const { id } = useParams();    
@@ -28,3 +29,11 @@ export default function ActaDetalle() {
         </div>
     );
 }
+
+const { user } = useAuth();
+
+{(user.rol === "ADMIN" || user.id === acta.creador.id) && (
+    <Link to={`/gestiones/nueva/${acta.id}`}>
+        <button>Agregar Gestión</button> 
+    </Link>
+)}
