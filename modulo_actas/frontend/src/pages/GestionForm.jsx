@@ -53,37 +53,36 @@ const GestionForm = () => {
 
 
     return (
-    <div>
-        <h2>Nueva Gestión</h2>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <form onSubmit={handleSubmit}>
-        <label>Fecha:</label>
-        <input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            required
-        />
+    <div className="app-container">
+      <div className="card" style={{maxWidth:720, margin:"0 auto"}}>
+        <h1 className="h1">Nueva Gestión</h1>
+        <p className="sub">Adjunta la evidencia (PDF o JPG) y describe brevemente la gestión realizada.</p>
+        <form className="form-grid" onSubmit={handleSubmit} style={{marginTop:16}}>
+          <div className="row">
+            <div style={{flex:1}}>
+              <label className="sub">Fecha</label>
+              <input className="input" type="date" value={fecha} onChange={e=>setFecha(e.target.value)} required />
+            </div>
+            <div style={{flex:2}}>
+              <label className="sub">Archivo (PDF o JPG)</label>
+              <input className="input" type="file" onChange={e=>setArchivo_adjunto(e.target.files[0])} required />
+            </div>
+          </div>
 
-        <label>Descripción:</label>
-        <textarea
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            required
-        ></textarea>
+          <label className="sub">Descripción</label>
+          <textarea className="textarea" rows={4} value={descripcion} onChange={e=>setDescripcion(e.target.value)} required />
 
-        <label>Archivo:</label>
-        <input
-            type="file"
-            onChange={(e) => setArchivo_adjunto(e.target.files[0])}
-            required
-        />
+          {error && <div className="error">{error}</div>}
 
-        <button type="submit">Guardar</button>
+          <div className="row" style={{justifyContent:"flex-end", marginTop:8}}>
+            <button type="button" className="btn btn-ghost" onClick={()=>navigate(-1)}>Cancelar</button>
+            <button type="submit" className="btn btn-primary">Guardar</button>
+          </div>
         </form>
+      </div>
     </div>
-    );
-};
+  );
+}
 
 export default GestionForm;
             

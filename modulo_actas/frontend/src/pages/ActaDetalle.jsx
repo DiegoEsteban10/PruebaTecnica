@@ -76,59 +76,57 @@ export default function ActaDetalle() {
   };
 
   return (
-    <div>
-      <h2>Detalle de Acta</h2>
-      <p><strong>Título:</strong> {acta.titulo}</p>
-      <p><strong>Estado:</strong> {acta.estado}</p>
-      <p><strong>Fecha:</strong> {acta.fecha}</p>
+    <div className="app-container">
+      <div className="card">
+        <h1 className="h1">Detalle de Acta</h1>
+        <div className="row" style={{marginBottom:8}}>
+          <div style={{flex:1}}>
+            <p><strong>Título:</strong> {acta.titulo}</p>
+            <p><strong>Estado:</strong> <span className={((e)=>{e=(e||"").toLowerCase();return e==="aprobado"?"badge badge-aprob":e==="rechazado"?"badge badge-rech":"badge badge-pend"})(acta.estado)}>{acta.estado}</span></p>
+            <p><strong>Fecha:</strong> {acta.fecha}</p>
+          </div>
+          <div className="row" style={{alignItems:"center"}}>
+            {token && <button className="btn btn-ghost" onClick={handleVerPDF}>Ver PDF</button>}
+            {(user?.rol==="ADMIN" || user?.id===acta.creador?.id) && (
+              <Link to={`/actas/${acta.id}/gestiones/nueva`}><button className="btn btn-primary">Agregar Gestión</button></Link>
+            )}
+          </div>
+        </div>
 
-      {token && <button onClick={handleVerPDF}>Ver PDF</button>}
+        <div className="divider" />
 
-      {(user?.rol === "ADMIN" || user?.id === acta.creador?.id) && (
-        <Link to={`/actas/${acta.id}/gestiones/nueva`}>
-          <button>Agregar Gestión</button>
-        </Link>
-      )}
+        <div className="section">
+          <h2 className="h2">Gestiones</h2>
+          {cargandoGestiones && <p className="sub">Cargando gestiones…</p>}
+          {errorGestiones && <p className="error">{errorGestiones}</p>}
+          {!cargandoGestiones && gestiones.length===0 && <p className="sub">No hay gestiones para esta acta.</p>}
 
-      <hr style={{ margin: "1rem 0" }} />
-
-      <h3>Gestiones</h3>
-      {cargandoGestiones && <p>Cargando gestiones...</p>}
-      {errorGestiones && <p style={{ color: "red" }}>{errorGestiones}</p>}
-      {!cargandoGestiones && gestiones.length === 0 && <p>No hay gestiones para esta acta.</p>}
-
-      {gestiones.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Descripción</th>
-              <th>Archivo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {gestiones.map((g) => (
-              <tr key={g.id}>
-                <td>{g.fecha}</td>
-                <td>{g.descripcion}</td>
-                <td>
-                  {g.archivo_adjunto ? (
-                    <a
-                      href={buildAdjuntoURL(g.archivo_adjunto)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Ver adjunto
-                    </a>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          {gestiones.length>0 && (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th>Archivo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {gestiones.map((g)=>(
+                  <tr key={g.id}>
+                    <td>{g.fecha}</td>
+                    <td>{g.descripcion}</td>
+                    <td>
+                      {g.archivo_adjunto ? (
+                        <a className="link" href={buildAdjuntoURL(g.archivo_adjunto)} target="_blank" rel="noreferrer">Ver adjunto</a>
+                      ) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

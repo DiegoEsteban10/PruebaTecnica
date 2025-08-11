@@ -31,55 +31,48 @@ export default function Actas() {
     ));
     });
 
+    const estadoBadge = (estado)=>{
+    const e = (estado||"").toLowerCase();
+    if (e==="aprobado") return "badge badge-aprob";
+    if (e==="rechazado") return "badge badge-rech";
+    return "badge badge-pend";
+  };
+
     return (
-        <div>
-            <h2>Lista de Actas</h2>
-
-            {/* Filtros */}
-            <div style={{ marginBottom: "1rem" }}>
-                <input 
-                    type="text" 
-                    placeholder="Filtrar por título" 
-                    value={filtroTitulo}
-                    onChange={(e) => setFiltroTitulo(e.target.value)}
-                />
-                <input 
-                    type="text" 
-                    placeholder="Filtrar por estado" 
-                    value={filtroEstado}
-                    onChange={(e) => setFiltroEstado(e.target.value)}
-                />
-                <input 
-                    type="date"
-                    value={filtroFecha}
-                    onChange={(e) => setFiltroFecha(e.target.value)}
-                />
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {actasFiltradas.map((acta) => (
-                        <tr key={acta.id}>
-                            <td>{acta.titulo}</td>
-                            <td>{acta.estado}</td>
-                            <td>{acta.fecha}</td>
-                            <td>
-                                <Link to={`/actas/${acta.id}`}>Ver Detalle</Link>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+    <div className="app-container">
+      <div className="card">
+        <h1 className="h1">Actas</h1>
+        <div className="toolbar">
+          <input className="input" placeholder="Filtrar por título" value={filtroTitulo} onChange={e=>setFiltroTitulo(e.target.value)} />
+          <input className="input" placeholder="Estado (pendiente/aprobado/rechazado)" value={filtroEstado} onChange={e=>setFiltroEstado(e.target.value)} />
+          <input className="input" type="date" value={filtroFecha} onChange={e=>setFiltroFecha(e.target.value)} />
         </div>
-    );
-    
+
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {actasFiltradas.map(a=>(
+              <tr key={a.id}>
+                <td>{a.titulo}</td>
+                <td><span className={estadoBadge(a.estado)}>{a.estado}</span></td>
+                <td>{a.fecha}</td>
+                <td><Link className="link" to={`/actas/${a.id}`}>Ver detalle</Link></td>
+              </tr>
+            ))}
+            {actasFiltradas.length===0 && (
+              <tr><td colSpan={4} className="sub center" style={{padding:16}}>No hay actas con esos filtros.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
