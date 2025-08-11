@@ -6,11 +6,15 @@ from django.core.exceptions import PermissionDenied
 # Create your views here.
 
 class GestionViewSet(viewsets.ModelViewSet):
+    queryset = Gestion.objects.all()
     serializer_class = GestionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Gestion.objects.filter(creador=self.request.user)
+        user = self.request.user
+        if user.rol == 'ADMIN':
+            return Gestion.objects.all()
+        return Gestion.objects.filter(creador=user)
 
     def perform_create(self, serializer):
         acta = serializer.validated_data['acta']
