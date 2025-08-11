@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from apps.actas.serializers import ActaSerializer
 from rest_framework.views import APIView
 from django.http import Http404, FileResponse
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
 
@@ -36,11 +37,12 @@ class ActaFileview(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request, pk):
+        acta = get_object_or_404(Acta, pk=pk)
+
+        if not acta.archivo_pdf:
+            raise Http404("El acta no tiene archivo PDF asociado.")
+
         try:
-            acta = Acta.objects.get(pk=pk)
-            file_path = acta.archivo_pdf.path
-            response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
-            response ['Content-Disposition'] = f'inline; filename="{acta.titulo}.pdf"'
-            return response
-        except (Acta.DoesNotExist, FileNotFoundError):
-            raise Http404
+            return FileResponse(open(acta.archivo_pdf.path, 'rb'), content_type='application/pdf')
+        except FileNotFoundError:
+            raise Http404("El archivo PDF no existe en el servidor.")
