@@ -18,5 +18,49 @@
         "fecha": "2023-11-15",
         "creador": 1 
         }
+    },
+
+    {
+        "model": "actas.acta",
+        "pk": 1,
+        "fields": {
+        "titulo": "Acta de Reunión Inicial",
+        "estado": "COMPLETADO",
+        "fecha": "2023-11-15",
+        "creador": 1 
+        }
+    },
+
+    {
+        "model": "usuarios.usuario",
+        "pk": 5,
+        "fields": {
+        "correo": "usuario@gmail.com",
+        "username": "usuario",
+        "password": "pbkdf2_sha256$1000000$3DooEkVpFxfMFzWsPgp1LE$X+vOoMNtN/qJxtowOcNHwKBNFMeUMiZzXzoRzkAY4DA=",
+        "rol": "BASE"
+        }
+    },
+
+    {
+        "model": "actas.acta",
+        "pk": 2,
+        "fields": {
+        "titulo": "Acta de compromisos",
+        "estado": "PENDIENTE",
+        "fecha": "2023-11-16",
+        "creador": 5 
+        }
+    },
+
+    {
+        "model": "compromisos.compromiso",
+        "pk": 1,
+        "fields": {
+        "estado": "COMPLETADO",
+        "descripcion": "Realizar Compromisos",
+        "fecha_limite": "2023-11-16",
+        "acta": 2
+        }
     }
 ]
