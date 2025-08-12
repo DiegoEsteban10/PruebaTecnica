@@ -87,8 +87,8 @@ export default function ActaDetalle() {
   const buildAdjuntoURL = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
-    if (path.startsWith('/')) return `http://localhost:8000${path}`;
-    return `http://localhost:8000/media/${path}`;
+    if (path.startsWith('/')) path = path.slice(1);
+    return `http://localhost:8000/media-protegida/${path}`;
   };
 
   // Marcar compromiso como completado
@@ -153,7 +153,9 @@ export default function ActaDetalle() {
                     <td>{g.descripcion}</td>
                     <td>
                       {g.archivo_adjunto ? (
-                        <a className="link" href={buildAdjuntoURL(g.archivo_adjunto)} target="_blank" rel="noreferrer">Ver adjunto</a>
+                        <button className="btn btn-link" onClick={() => handleVerPDF(g.archivo_adjunto)}>
+                          Ver adjunto
+                        </button>
                       ) : "—"}
                     </td>
                   </tr>

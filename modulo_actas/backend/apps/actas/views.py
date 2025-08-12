@@ -1,11 +1,23 @@
+from django.conf import settings
 from rest_framework import viewsets, permissions
 from apps.actas.models import Acta
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from .serializers import ActaSerializer
 from rest_framework.decorators import action
 from django.http import Http404, FileResponse
+import os
 
+
+class ProtectedMediaView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, path):
+        file_path = os.path.join(settings.MEDIA_ROOT, path)
+        if not os.path.exists(file_path):
+            raise Http404("Archivo no encontrado.")
+        return FileResponse(open(file_path, 'rb'))
 class ActaViewSet(viewsets.ModelViewSet):
     serializer_class = ActaSerializer
     queryset = Acta.objects.all()

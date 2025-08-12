@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.actas.views import ProtectedMediaView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,6 +31,9 @@ urlpatterns = [
 
     # Login/Logout del DRF
     path('api-auth/', include('rest_framework.urls')),
+    
+    # Archivos protegidos
+    path('media-protegida/<path:path>', ProtectedMediaView.as_view()),
 ]
 
 if settings.DEBUG:
