@@ -83,23 +83,63 @@ export default function ActaDetalle() {
     }
   };
 
-  // URL segura para adjuntos
-  const buildAdjuntoURL = (path) => {
+  // ====== 🔒 Adjuntos protegidos ======
+  const normalizeMediaPath = (path) => {
     if (!path) return null;
-    if (path.startsWith('http')) return path;
-    if (path.startsWith('/')) path = path.slice(1);
-    return `http://localhost:8000/media-protegida/${path}`;
+    if (path.startsWith('http')) {
+      const i = path.indexOf('/media/');
+      return i !== -1 ? path.slice(i + '/media/'.length) : null;
+    }
+    if (path.startsWith('/media/')) return path.slice('/media/'.length);
+    if (path.startsWith('/')) return path.slice(1);
+    return path; // ya relativo
   };
 
-  // Marcar compromiso como completado
-  const onMarcarCompletado = async (compId) => {
+  const buildProtectedURL = (path) => {
+    const rel = normalizeMediaPath(path);
+    if (!rel) return null;
+    return `http://localhost:8000/media-protegida/${rel}`;
+  };
+
+  const handleVerAdjunto = async (filePath) => {
+    if (!token) { alert("Tienes que iniciar sesión para ver el adjunto"); return; }
+    const url = buildProtectedURL(filePath);
+    if (!url) { alert("Ruta de adjunto inválida"); return; }
+
     try {
-      await api.patch(`/compromisos/${compId}/marcar_completado/`);
-      setCompromisos(prev => prev.map(c => c.id === compId ? { ...c, estado: "COMPLETADO" } : c));
-    } catch {
-      alert("No se pudo marcar el compromiso.");
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+
+      if (!response.ok) {
+        const msg = await response.text().catch(() => '');
+        console.error('Adjunto fallo:', response.status, msg);
+        alert('No se pudo abrir el adjunto.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const objUrl = URL.createObjectURL(blob);
+      window.open(objUrl, '_blank');
+    } catch (e) {
+      console.error(e);
+      alert('No se pudo abrir el adjunto.');
     }
   };
+  // ====== /Adjuntos protegidos ======
+
+  // Marcar compromiso como completado
+const onMarcarCompletado = async (compId) => {
+  try {
+    await api.patch(`/compromisos/${compId}/marcar_completado/`);
+    setCompromisos(prev =>
+      prev.map(c => c.id === compId ? { ...c, estado: "COMPLETADO" } : c)
+    );
+  } catch {
+    alert("No se pudo marcar el compromiso.");
+  }
+};
+
 
   // Badge estado
   const estadoBadge = (estado) => {
@@ -153,7 +193,7 @@ export default function ActaDetalle() {
                     <td>{g.descripcion}</td>
                     <td>
                       {g.archivo_adjunto ? (
-                        <button className="btn btn-link" onClick={() => handleVerPDF(g.archivo_adjunto)}>
+                        <button className="btn btn-link" onClick={() => handleVerAdjunto(g.archivo_adjunto)}>
                           Ver adjunto
                         </button>
                       ) : "—"}

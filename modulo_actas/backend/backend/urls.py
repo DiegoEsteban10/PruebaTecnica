@@ -33,7 +33,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     
     # Archivos protegidos
-    path('media-protegida/<path:path>', ProtectedMediaView.as_view()),
+    path('media-protegida/<path:path>', ProtectedMediaView.as_view(), name='media-protegida'),
 ]
 
 if settings.DEBUG:

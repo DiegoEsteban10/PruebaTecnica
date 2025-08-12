@@ -7,17 +7,43 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import ActaSerializer
 from rest_framework.decorators import action
 from django.http import Http404, FileResponse
-import os
+import os, mimetypes
 
 
 class ProtectedMediaView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, path):
-        file_path = os.path.join(settings.MEDIA_ROOT, path)
+        # Normalizar: quitar prefijos si llegan
+        # /media/foo.pdf  -> foo.pdf
+        # /gestiones/foo.pdf -> gestiones/foo.pdf
+        # gestiones/foo.pdf -> (igual)
+        normalized = path
+        if normalized.startswith('media/'):
+            normalized = normalized[len('media/'):]
+        if normalized.startswith('/media/'):
+            normalized = normalized[len('/media/'):]
+        if normalized.startswith('/'):
+            normalized = normalized[1:]
+
+        # Resolver ruta final dentro de MEDIA_ROOT
+        file_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, normalized))
+
+        # Seguridad: que no escape de MEDIA_ROOT
+        if not file_path.startswith(os.path.abspath(settings.MEDIA_ROOT)):
+            raise Http404("Ruta inválida.")
+
         if not os.path.exists(file_path):
             raise Http404("Archivo no encontrado.")
-        return FileResponse(open(file_path, 'rb'))
+
+        ctype, _ = mimetypes.guess_type(file_path)
+        if not ctype:
+            ctype = 'application/octet-stream'
+
+        resp = FileResponse(open(file_path, 'rb'), content_type=ctype)
+        # Mostrar en navegador con un nombre legible
+        resp['Content-Disposition'] = f'inline; filename="{os.path.basename(file_path)}"'
+        return resp
 class ActaViewSet(viewsets.ModelViewSet):
     serializer_class = ActaSerializer
     queryset = Acta.objects.all()
