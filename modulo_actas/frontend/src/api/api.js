@@ -22,6 +22,16 @@ export const crearGestion =  async (token, formData) => {
     });
     return response.data;
 };
+
+export const ListarCompromisos =  async () => {
+    const res = await api.get('/compromisos/');
+    return Array.isArray(res.data) ? res.data : (res.data.results || []);
+}
+
+export const marcarCompromisoCompleto =  async (id) => {
+    const res = await api.put(`/compromisos/${id}/marcar_completado/`);
+    return res.data;
+}
         
     
 

@@ -9,9 +9,16 @@ export default function ActaDetalle() {
   const { user, token } = useAuth();
 
   const [acta, setActa] = useState(null);
+
+  // Gestiones
   const [gestiones, setGestiones] = useState([]);
   const [cargandoGestiones, setCargandoGestiones] = useState(true);
   const [errorGestiones, setErrorGestiones] = useState("");
+
+  // Compromisos
+  const [compromisos, setCompromisos] = useState([]);
+  const [cargandoComp, setCargandoComp] = useState(true);
+  const [errorComp, setErrorComp] = useState("");
 
   useEffect(() => {
     api.get(`/actas/${id}/`).then((response) => setActa(response.data));
@@ -40,18 +47,28 @@ export default function ActaDetalle() {
       .catch(() => !cancelado && setErrorGestiones("No se pudieron cargar las gestiones"))
       .finally(() => !cancelado && setCargandoGestiones(false));
 
-    return () => {
-      cancelado = true;
-    };
+    return () => { cancelado = true; };
+  }, [id, location.key]);
+
+  // Cargar compromisos del acta
+  useEffect(() => {
+    let cancel = false;
+    setCargandoComp(true); setErrorComp("");
+    api.get("/compromisos/")
+      .then((r) => {
+        const data = r.data;
+        const lista = Array.isArray(data) ? data : (data?.results || data?.compromisos || []);
+        if (!cancel) setCompromisos(lista.filter(c => String(c.acta) === String(id)));
+      })
+      .catch(() => !cancel && setErrorComp("No se pudieron cargar los compromisos"))
+      .finally(() => !cancel && setCargandoComp(false));
+    return () => { cancel = true; };
   }, [id, location.key]);
 
   if (!acta) return <div>Cargando...</div>;
 
   const handleVerPDF = async () => {
-    if (!token) {
-      alert("Tienes que iniciar sesión para ver el PDF");
-      return;
-    }
+    if (!token) { alert("Tienes que iniciar sesión para ver el PDF"); return; }
     try {
       const response = await fetch(`http://localhost:8000/api/actas/${acta.id}/pdf/`, {
         method: 'GET',
@@ -61,13 +78,12 @@ export default function ActaDetalle() {
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
-    } catch (error) {
-      console.error(error);
+    } catch {
       alert("Error al abrir el PDF");
     }
   };
 
-  // 🔧 solo esencial: construir bien la URL del adjunto
+  // URL segura para adjuntos
   const buildAdjuntoURL = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
@@ -75,14 +91,33 @@ export default function ActaDetalle() {
     return `http://localhost:8000/media/${path}`;
   };
 
+  // Marcar compromiso como completado
+  const onMarcarCompletado = async (compId) => {
+    try {
+      await api.patch(`/compromisos/${compId}/marcar_completado/`);
+      setCompromisos(prev => prev.map(c => c.id === compId ? { ...c, estado: "COMPLETADO" } : c));
+    } catch {
+      alert("No se pudo marcar el compromiso.");
+    }
+  };
+
+  // Badge estado
+  const estadoBadge = (estado) => {
+    const e = (estado || "").toLowerCase();
+    if (e === "aprobado") return "badge badge-aprob";
+    if (e === "rechazado") return "badge badge-rech";
+    return "badge badge-pend";
+  };
+
   return (
     <div className="app-container">
       <div className="card">
         <h1 className="h1">Detalle de Acta</h1>
+
         <div className="row" style={{marginBottom:8}}>
           <div style={{flex:1}}>
             <p><strong>Título:</strong> {acta.titulo}</p>
-            <p><strong>Estado:</strong> <span className={((e)=>{e=(e||"").toLowerCase();return e==="aprobado"?"badge badge-aprob":e==="rechazado"?"badge badge-rech":"badge badge-pend"})(acta.estado)}>{acta.estado}</span></p>
+            <p><strong>Estado:</strong> <span className={estadoBadge(acta.estado)}>{acta.estado}</span></p>
             <p><strong>Fecha:</strong> {acta.fecha}</p>
           </div>
           <div className="row" style={{alignItems:"center"}}>
@@ -95,6 +130,7 @@ export default function ActaDetalle() {
 
         <div className="divider" />
 
+        {/* Gestiones */}
         <div className="section">
           <h2 className="h2">Gestiones</h2>
           {cargandoGestiones && <p className="sub">Cargando gestiones…</p>}
@@ -126,6 +162,46 @@ export default function ActaDetalle() {
             </table>
           )}
         </div>
+
+        <div className="divider" />
+
+        {/* Compromisos */}
+        <div className="section">
+          <h2 className="h2">Compromisos</h2>
+          {cargandoComp && <p className="sub">Cargando compromisos…</p>}
+          {errorComp && <p className="error">{errorComp}</p>}
+          {!cargandoComp && compromisos.length === 0 && <p className="sub">No hay compromisos para esta acta.</p>}
+
+          {compromisos.length > 0 && (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Descripción</th>
+                  <th>Fecha límite</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {compromisos.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.descripcion}</td>
+                    <td>{c.fecha_limite}</td>
+                    <td>{c.estado}</td>
+                    <td style={{textAlign:"right"}}>
+                      {c.estado !== "COMPLETADO" && (
+                        <button className="btn btn-ghost" onClick={() => onMarcarCompletado(c.id)}>
+                          Marcar completado
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
       </div>
     </div>
   );
